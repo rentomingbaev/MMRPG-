@@ -1,3 +1,4 @@
+// Загрузка или создание персонажа
 let player = JSON.parse(localStorage.getItem("player")) || {
   name: "",
   hp: 100,
@@ -10,20 +11,24 @@ let player = JSON.parse(localStorage.getItem("player")) || {
 
 const output = document.getElementById("game-output");
 
+// Сохранение в localStorage
 function save() {
   localStorage.setItem("player", JSON.stringify(player));
 }
 
+// Вывод строки в окно игры
 function log(text) {
   output.innerHTML += text + "<br>";
   output.scrollTop = output.scrollHeight;
 }
 
+// Обработка введённой команды
 function handleCommand() {
   const input = document.getElementById("user-input");
   const cmd = input.value.trim().toLowerCase();
   input.value = "";
 
+  // Если нет имени — регистрируем
   if (!player.name) {
     player.name = cmd;
     log(`Добро пожаловать, ${player.name}! Введите команду: класс (воин/маг/лучник)`);
@@ -31,6 +36,7 @@ function handleCommand() {
     return;
   }
 
+  // Если не выбран класс — ждем выбор
   if (!player.class) {
     if (["воин", "маг", "лучник"].includes(cmd)) {
       player.class = cmd;
@@ -43,7 +49,8 @@ function handleCommand() {
     return;
   }
 
-  switch (cmd) {  switch (cmd) {
+  // Основные команды
+  switch (cmd) {
     case "статус":
       log(`👤 ${player.name} | ❤️ ${player.hp}/${player.maxHp} | 💰 ${player.gold} | 🧪 Уровень: ${player.level}`);
       break;
@@ -63,13 +70,8 @@ function handleCommand() {
       `);
       break;
 
-    // остальные кейсы...
-
-    case "статус":
-      log(`👤 ${player.name} | ❤️ ${player.hp}/${player.maxHp} | 💰 ${player.gold} | 🧪 Уровень: ${player.level}`);
-      break;
-
     case "бой":
+      // Генерируем дракона как моба
       let mob = { name: "Дракон 🐉", hp: 50 + player.level * 10 };
       let dmg = 10 + player.level * 2;
       mob.hp -= dmg;
@@ -79,7 +81,7 @@ function handleCommand() {
         player.hp = player.maxHp;
         player.gold = Math.max(0, player.gold - 20);
       } else {
-        log(`Вы победили ${mob.name} и получили 50 золота!`);
+        log(`✅ Вы победили ${mob.name} и получили 50 золота!`);
         player.gold += 50;
         player.level += 1;
       }
@@ -98,8 +100,8 @@ function handleCommand() {
       if (player.gold >= 50) {
         player.gold -= 50;
         player.inventory.push("меч 🗡️");
-        log("Вы купили меч!");
-      } else log("Недостаточно золота.");
+        log("✅ Вы купили меч!");
+      } else log("❌ Недостаточно золота.");
       save();
       break;
 
@@ -107,8 +109,8 @@ function handleCommand() {
       if (player.gold >= 30) {
         player.gold -= 30;
         player.inventory.push("зелье 🧪");
-        log("Вы купили зелье!");
-      } else log("Недостаточно золота.");
+        log("✅ Вы купили зелье!");
+      } else log("❌ Недостаточно золота.");
       save();
       break;
 
@@ -116,8 +118,8 @@ function handleCommand() {
       if (player.inventory.includes("зелье 🧪")) {
         player.hp = Math.min(player.maxHp, player.hp + 30);
         player.inventory.splice(player.inventory.indexOf("зелье 🧪"), 1);
-        log("Вы использовали зелье и восстановили здоровье.");
-      } else log("У вас нет зелья.");
+        log("💖 Вы использовали зелье и восстановили здоровье.");
+      } else log("❌ У вас нет зелья.");
       save();
       break;
 
@@ -127,6 +129,6 @@ function handleCommand() {
       break;
 
     default:
-      log("Неизвестная команда.");
+      log("❓ Неизвестная команда. Введите «помощь» для списка команд.");
   }
 }
